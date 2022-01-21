@@ -13,7 +13,7 @@ class CreateArticleTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function can_create_article()
+    public function can_create_articles()
     {
         $this->withoutExceptionHandling();
 
