@@ -10,7 +10,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 class CreateArticleTest extends TestCase
 {
     use RefreshDatabase;
-    
+
     /** @test */
     public function can_create_article()
     {
@@ -26,7 +26,7 @@ class CreateArticleTest extends TestCase
                 ]
             ]
         ]);
-        
+
         $response->assertCreated();
 
         $article = Article::first();
