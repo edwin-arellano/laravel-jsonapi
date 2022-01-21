@@ -2,8 +2,9 @@
 
 namespace Tests;
 
-use PHPUnit\Framework\Assert as PHPUnit;
+use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
+use PHPUnit\Framework\Assert as PHPUnit;
 
 trait MakesJsonApiRequests
 {
@@ -48,9 +49,11 @@ trait MakesJsonApiRequests
     protected function assertJsonApiValidationErrors()
     {
         return function ($attribute) {
+            $pointer = Str::of($attribute)->startsWith('data') ? "/" . str_replace('.', '/', $attribute) : "/data/attributes/{$attribute}";
+
             try {
                 $this->assertJsonFragment([
-                    'source' => ['pointer' => '/data/attributes/' . $attribute],
+                    'source' => ['pointer' => $pointer],
                 ]);
             } catch (ExpectationFailedException $e) {
                 PHPUnit::fail(
