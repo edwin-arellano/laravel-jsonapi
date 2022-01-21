@@ -8,6 +8,8 @@ use PHPUnit\Framework\Assert as PHPUnit;
 
 trait MakesJsonApiRequests
 {
+    protected bool $formatJsonApiDocument = true;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -18,11 +20,21 @@ trait MakesJsonApiRequests
         );
     }
 
+    public function withoutJsonApiDocumentFormatting()
+    {
+        $this->formatJsonApiDocument = false;
+    }
+
     public function json($method, $uri, array $data = [], array $headers = []): TestResponse
     {
         $headers['accept'] = 'application/vnd.api+json';
 
-        return parent::json($method, $uri, $data, $headers);
+        if ($this->formatJsonApiDocument) {
+            $formattedData['data']['attributes'] = $data;
+            $formattedData['data']['type'] = (string) Str::of($uri)->after('api/v1/');
+        }
+
+        return parent::json($method, $uri, $formattedData ?? $data, $headers);
     }
 
     public function postJson($uri, array $data = [], array $headers = []): TestResponse
