@@ -10,7 +10,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 class ListArticlesTest extends TestCase
 {
     use RefreshDatabase;
-    
+
     /** @test */
     public function can_fetch_a_single_article()
     {
@@ -45,7 +45,7 @@ class ListArticlesTest extends TestCase
 
         $response = $this->getJson(route('api.v1.articles.index'));
 
-        $response->assertExactJson([
+        $response->assertJson([
             'data' => [
                 [
                     'type' => 'articles',
