@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\Slug;
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class SaveArticleRequest extends FormRequest
@@ -25,7 +27,12 @@ class SaveArticleRequest extends FormRequest
     {
         return [
             'data.attributes.title' => ['required', 'min:4'],
-            'data.attributes.slug' => ['required'],
+            'data.attributes.slug' => [
+                'required',
+                'alpha_dash',
+                new Slug(),
+                Rule::unique('articles', 'slug')->ignore($this->route('article')),
+            ],
             'data.attributes.content' => ['required'],
         ];
     }

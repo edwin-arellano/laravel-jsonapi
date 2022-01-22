@@ -16,7 +16,7 @@ class DeleteArticleTest extends TestCase
     {
         $article = Article::factory()->create();
 
-        $response = $this->deleteJson(route('api.v1.articles.destroy', $article))
+        $this->deleteJson(route('api.v1.articles.destroy', $article))
             ->assertNoContent();
 
         $this->assertDatabaseCount('articles', 0);
