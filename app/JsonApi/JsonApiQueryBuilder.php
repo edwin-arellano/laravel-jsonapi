@@ -50,10 +50,16 @@ class JsonApiQueryBuilder
                 return $this;
             }
 
-            $fields = explode(',', request('fields.articles'));
+            property_exists($this->model, 'resourceType')
+                ? $resourceType = $this->model->resourceType
+                : $resourceType = $this->model->getTable();
 
-            if (! in_array('slug', $fields)) {
-                $fields[] = 'slug';
+            $fields = explode(',', request('fields.'.$resourceType));
+
+            $routeKeyName = $this->model->getRouteKeyName();
+
+            if (! in_array($routeKeyName, $fields)) {
+                $fields[] = $routeKeyName;
             }
 
             return $this->addSelect($fields);

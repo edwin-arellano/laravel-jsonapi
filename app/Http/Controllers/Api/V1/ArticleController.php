@@ -23,8 +23,12 @@ class ArticleController extends Controller
         return ArticleCollection::make($articles);
     }
 
-    public function show(Article $article): ArticleResource
+    public function show($article): ArticleResource
     {
+        $article = Article::where('slug', $article)
+            ->sparseFieldset()
+            ->firstOrFail();
+
         return ArticleResource::make($article);
     }
 
