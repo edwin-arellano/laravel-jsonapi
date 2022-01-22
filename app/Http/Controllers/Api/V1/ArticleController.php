@@ -9,10 +9,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\ArticleResource;
 use App\Http\Requests\SaveArticleRequest;
 use App\Http\Resources\ArticleCollection;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class ArticleController extends Controller
 {
-    public function index(): ArticleCollection
+    public function index(): AnonymousResourceCollection
     {
         $articles = Article::query()
             ->allowedFilters(['title', 'content', 'year', 'month'])
@@ -20,10 +22,10 @@ class ArticleController extends Controller
             ->sparseFieldset()
             ->jsonPaginate();
 
-        return ArticleCollection::make($articles);
+        return ArticleResource::collection($articles);
     }
 
-    public function show($article): ArticleResource
+    public function show($article): JsonResource
     {
         $article = Article::where('slug', $article)
             ->sparseFieldset()
@@ -32,14 +34,14 @@ class ArticleController extends Controller
         return ArticleResource::make($article);
     }
 
-    public function store(SaveArticleRequest $request): ArticleResource
+    public function store(SaveArticleRequest $request): JsonResource
     {
         $article = Article::create($request->validated());
 
         return ArticleResource::make($article);
     }
 
-    public function update(Article $article, SaveArticleRequest $request): ArticleResource
+    public function update(Article $article, SaveArticleRequest $request): JsonResource
     {
         $article->update($request->validated());
 
