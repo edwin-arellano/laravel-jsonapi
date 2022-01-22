@@ -25,6 +25,13 @@ class Category extends Model
         'id' => 'integer',
     ];
 
+    public $resourceType = 'categories';
+
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+
     public function articles()
     {
         return $this->hasMany(Article::class);

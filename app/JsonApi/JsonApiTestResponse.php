@@ -51,7 +51,7 @@ class JsonApiTestResponse
     public function assertJsonApiResource(): Closure
     {
         return function ($model, $attributes) {
-            $this->assertJson([
+            return $this->assertJson([
                 'data' => [
                     'type' => $model->getResourceType(),
                     'id' => (string) $model->getRouteKey(),
@@ -87,6 +87,8 @@ class JsonApiTestResponse
                     ],
                 ]);
             }
+
+            return $this;
         };
     }
 }
