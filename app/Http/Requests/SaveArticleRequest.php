@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Rules\Slug;
+use App\Models\Category;
 use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -34,11 +35,22 @@ class SaveArticleRequest extends FormRequest
                 Rule::unique('articles', 'slug')->ignore($this->route('article')),
             ],
             'data.attributes.content' => ['required'],
+            'data.relationships' => [],
         ];
     }
 
     public function validated()
     {
-        return parent::validated()['data']['attributes'];
+        $data = parent::validated()['data'];
+        $attributes = $data['attributes'];
+
+        if (isset($data['relationships'])) {
+            $relationships = $data['relationships'];
+            $categorySlug = $relationships['category']['data']['id'];
+            $category = Category::where('slug', $categorySlug)->first();
+            $attributes['category_id'] = $category->id;
+        }
+
+        return $attributes;
     }
 }
