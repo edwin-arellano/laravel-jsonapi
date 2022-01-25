@@ -35,7 +35,10 @@ class SaveArticleRequest extends FormRequest
                 Rule::unique('articles', 'slug')->ignore($this->route('article')),
             ],
             'data.attributes.content' => ['required'],
-            'data.relationships' => [],
+            'data.relationships.category.data.id' => [
+                Rule::requiredIf(! $this->route('article')),
+                Rule::exists('categories', 'slug'),
+            ],
         ];
     }
 
