@@ -3,6 +3,7 @@
 namespace Tests\Feature\Articles;
 
 use Tests\TestCase;
+use App\Models\User;
 use App\Models\Article;
 use App\Models\Category;
 use Illuminate\Testing\TestResponse;
@@ -16,6 +17,7 @@ class CreateArticleTest extends TestCase
     /** @test */
     public function can_create_articles()
     {
+        $user = User::factory()->create();
         $category = Category::factory()->create();
 
         $response = $this->postJson(route('api.v1.articles.store'), [
@@ -24,21 +26,23 @@ class CreateArticleTest extends TestCase
             'content' => 'Contenido del artículo.',
             '_relationships' => [
                 'category' => $category,
+                'author' => $user,
             ],
         ])->assertCreated();
 
         $article = Article::first();
-
-        $response->assertHeader(
-            'Location',
-            route('api.v1.articles.show', $article)
-        );
 
         $response->assertJsonApiResource($article, [
             'title' => $article->title,
             'slug' => $article->slug,
             'content' => $article->content,
         ])->assertJsonApiRelationshipLinks($article, ['category']);
+
+        $this->assertDatabaseHas('articles', [
+            'title' => $article->title,
+            'user_id' => $user->id,
+            'category_id' => $category->id,
+        ]);
     }
 
     /** @test */
