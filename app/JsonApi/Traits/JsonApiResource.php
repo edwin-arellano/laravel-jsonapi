@@ -3,6 +3,7 @@
 namespace App\JsonApi\Traits;
 
 use App\JsonApi\Document;
+use Illuminate\Http\Resources\MissingValue;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 trait JsonApiResource
@@ -11,13 +12,28 @@ trait JsonApiResource
 
     public function toArray($request): array
     {
-        return Document::type($this->getResourceType())
+        if ($request->filled('include')) {
+            foreach ($this->getIncludes() as $include) {
+                if ($include->resource instanceof MissingValue) {
+                    continue;
+                }
+
+                $this->with['included'][] = $include;
+            }
+        }
+
+        return Document::type($this->resource->getResourceType())
             ->id($this->resource->getRouteKey())
             ->attributes($this->filterAttributes($this->toJsonApi()))
             ->relationshipLinks($this->getRelationshipLinks())
             ->links( [
-                'self' => route('api.v1.'.$this->getResourceType().'.show', $this->resource)
+                'self' => route('api.v1.'.$this->resource->getResourceType().'.show', $this->resource)
             ])->get('data');
+    }
+
+    public function getIncludes(): array
+    {
+        return [];
     }
 
     public function getRelationshipLinks(): array
@@ -50,11 +66,23 @@ trait JsonApiResource
         });
     }
 
-    public static function collection($resource): AnonymousResourceCollection
+    public static function collection($resources): AnonymousResourceCollection
     {
-        $collection = parent::collection($resource);
+        $collection = parent::collection($resources);
 
-        $collection->with['links'] = ['self' => $resource->path()];
+        if (request()->filled('include')) {
+            foreach ($resources as $resource) {
+                foreach ($resource->getIncludes() as $include) {
+                    if ($include->resource instanceof MissingValue) {
+                        continue;
+                    }
+
+                    $collection->with['included'][] = $include;
+                }
+            }
+        }
+
+        $collection->with['links'] = ['self' => $resources->path()];
 
         return $collection;
     }

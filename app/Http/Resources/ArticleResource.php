@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\JsonApi\Traits\JsonApiResource;
+use App\Http\Resources\CategoryResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ArticleResource extends JsonResource
@@ -21,5 +22,12 @@ class ArticleResource extends JsonResource
     public function getRelationshipLinks(): array
     {
         return ['category'];
+    }
+
+    public function getIncludes(): array
+    {
+        return [
+            CategoryResource::make($this->whenLoaded('category')),
+        ];
     }
 }
